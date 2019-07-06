@@ -5,7 +5,7 @@ import java.util.List;
 
 @Entity
 public class Compteur {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+   @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
     private  String numeroCompteur;
     private  Double cumulCons;

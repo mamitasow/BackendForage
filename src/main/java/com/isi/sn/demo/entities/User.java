@@ -1,38 +1,41 @@
 package com.isi.sn.demo.entities;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 @Entity
 @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id")
-public class User{
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nom;
     private String prenom;
     private String tel;
-    private String username ;
+    private String username;
     private Date dateNaiss;
-    @Column(unique=true)
+    @Column(unique = true)
     private String matricule;
     private String password;
     private Boolean enabled;
-    @OneToMany(mappedBy="user",fetch=FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Abonnement> abonnements;
-    @ManyToMany(fetch=FetchType.EAGER)
-    private List<Roles>roles;
-    @OneToMany(mappedBy="user",fetch=FetchType.LAZY)
+    @ManyToMany(cascade={ CascadeType.ALL },fetch = FetchType.EAGER)
+    private List<Roles> roles = new ArrayList<>();
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Client> clients;
-    @OneToMany(mappedBy="user",fetch=FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Compteur> compteurs;
-    @OneToMany(mappedBy="user",fetch=FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Facture> factures;
-    @OneToMany(mappedBy="user",fetch=FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Reglement> reglements;
-    @OneToMany(mappedBy="user",fetch=FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Village> villages;
 
 
@@ -128,7 +131,6 @@ public class User{
     public void setAbonnements(List<Abonnement> abonnements) {
         this.abonnements = abonnements;
     }
-
     public List<Roles> getRoles() {
         return roles;
     }

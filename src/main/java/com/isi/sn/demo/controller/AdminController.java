@@ -8,6 +8,7 @@ import javax.validation.Valid;
 
 import com.isi.sn.demo.entities.Roles;
 import com.isi.sn.demo.entities.User;
+import com.isi.sn.demo.entities.UserDto;
 import com.isi.sn.demo.service.Account;
 import com.isi.sn.demo.service.RegisterForm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -30,13 +32,18 @@ public class AdminController {
 
 	
 	@PostMapping("/addUser")
-	public User registerForm(@RequestBody User  user) {
-       User u = null ;
+	public User registerForm(@RequestBody UserDto user) {
+       User u = new User() ;
+       u.setDateNaiss(user.getDateNaiss());
+       u.setEnabled(true);
+       u.setPrenom(user.getPrenom());
+       u.setNom(user.getNom());
+       u.setTel(user.getTel());
         if(user!=null){
-        u=account.saveUser(user);
+        u=account.saveUser(u);
         String mat = u.getMatricule();
-        u.getRoles().forEach(roles -> {
-        	account.addRoleToUser(mat, roles.getName());
+        user.getRoles().forEach(roles -> {
+        	account.addRoleToUser(mat, roles.getId());
 		});
 		}
 		return u ;
@@ -131,7 +138,7 @@ public class AdminController {
 	@PostMapping("/addRole")
 	public String addRole(User u,Model model) {
 		for(Roles role:u.getRoles()) {
-			account.addRoleToUser(matricule, role.getName());
+			account.addRoleToUser(matricule, role.getId());
 		}
 		model.addAttribute("succes", "succes");
 		return "ajoutRole";

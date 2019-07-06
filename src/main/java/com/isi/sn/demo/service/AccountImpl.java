@@ -46,10 +46,11 @@ public class AccountImpl implements Account{
 	}
 
 	@Override
-	public void addRoleToUser(String matricule, String libelle) {
+	public void addRoleToUser(String matricule, int id) {
 		User user=userRepository.findByMatricule(matricule);
-		Roles role=roleRepository.findByName(libelle);
+		Roles role=roleRepository.findById(id).get();
 		user.getRoles().add(role);
+		userRepository.save(user);
 	}
 
 	@Override

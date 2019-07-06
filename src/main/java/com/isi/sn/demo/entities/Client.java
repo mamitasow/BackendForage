@@ -4,7 +4,7 @@ import java.util.List;
 import com.isi.sn.demo.entities.Village;
 @Entity
 public class Client {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+   @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
     private  String nomFamille;
     private  String adresse;
