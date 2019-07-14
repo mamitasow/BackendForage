@@ -16,7 +16,7 @@ public interface Account {
 	public List<Compteur>getAllCompteur();
 	public List<Facture>getAllFacture();
 	public List<Reglement>getAllReglement();
-	public List<Village>getAllVillage();
+	public List<Village> getAllVillage();
 	public List<Roles>getAllRole();
 	public List<Roles>getAllRoleByMat(String matricule);
 	public boolean checkpassword(String matricule, String password);
