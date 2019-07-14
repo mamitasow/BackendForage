@@ -1,4 +1,6 @@
 package com.isi.sn.demo.entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -8,18 +10,29 @@ public class Village{
     @GeneratedValue
     private Long id;
     @Column(unique=true)
-    private String nomvillage;
+    private String nomVillage;
     @OneToMany(mappedBy="village",fetch= FetchType.LAZY)
     private List<Client> clients;
     @ManyToOne
     @JoinColumn(name="user")
     private User user;
+    @ManyToOne
+    @JoinColumn(name="chef")
+    private Client chef;
 
     public Village() {
     }
+    @JsonIgnore
+    public Client getChef() {
+        return chef;
+    }
 
-    public Village(String nomvillage, List<Client> clients, User user) {
-        this.nomvillage = nomvillage;
+    public void setChef(Client chef) {
+        this.chef = chef;
+    }
+
+    public Village(String nomVillage, List<Client> clients, User user) {
+        this.nomVillage = nomVillage;
         this.clients = clients;
         this.user = user;
     }
@@ -33,13 +46,13 @@ public class Village{
     }
 
     public String getNomvillage() {
-        return nomvillage;
+        return nomVillage;
     }
 
     public void setNomvillage(String nomvillage) {
-        this.nomvillage = nomvillage;
+        this.nomVillage = nomvillage;
     }
-
+    @JsonIgnore
     public List<Client> getClients() {
         return clients;
     }
@@ -47,7 +60,7 @@ public class Village{
     public void setClients(List<Client> clients) {
         this.clients = clients;
     }
-
+    @JsonIgnore
     public User getUser() {
         return user;
     }

@@ -6,9 +6,8 @@ import java.util.List;
 import javax.validation.Valid;
 
 
-import com.isi.sn.demo.entities.Roles;
-import com.isi.sn.demo.entities.User;
-import com.isi.sn.demo.entities.UserDto;
+import com.isi.sn.demo.dao.*;
+import com.isi.sn.demo.entities.*;
 import com.isi.sn.demo.service.Account;
 import com.isi.sn.demo.service.RegisterForm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +26,19 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 	@Autowired
 	private Account account;
+	@Autowired
+	UserRepository userRepository ;
+	@Autowired
+	RoleRepository roleRepository ;
 	public boolean statut = false;
-	
-
+	@Autowired
+	private VillageRepository villageRepository ;
+    @Autowired
+	ClientRepository clientRepository ;
+	@Autowired
+	CompteurRepository compteurRepository ;
+	@Autowired
+	AbonnementRepository abonnementRepository ;
 	
 	@PostMapping("/addUser")
 	public User registerForm(@RequestBody UserDto user) {
@@ -39,6 +48,9 @@ public class AdminController {
        u.setPrenom(user.getPrenom());
        u.setNom(user.getNom());
        u.setTel(user.getTel());
+       System.out.println("=======mat"+user.getMatricule());
+       u.setMatricule(user.getMatricule());
+       u.setUsername(user.getUsername());
         if(user!=null){
         u=account.saveUser(u);
         String mat = u.getMatricule();
@@ -64,6 +76,47 @@ public class AdminController {
 		account.saveUser(user);
 		model.addAttribute("succes", "succes");
 		return "ajoutUser";
+
+	}
+	@GetMapping("/findVillage/{nomVillage}")
+	public Village findVillage(@PathVariable("nomVillage") String nomVillage) {
+
+		return villageRepository.findVillageByNomvillage(nomVillage);
+	}
+
+	@PostMapping("/addAbonnement")
+	public Abonnement findVillage(@RequestBody AbonnementDto a) {
+      Village v ;
+      Client c ;
+      Compteur cp = new Compteur();
+      Abonnement ab = new Abonnement();
+      v =  villageRepository.findVillageByNomvillage(a.getNomVillage());
+      c = new Client() ;
+      c.setAdresse(a.getAdresse());
+      c.setNomFamille(a.getNomFamille());
+      c.setTel(a.getTel());
+      if(a.getEstchef()==1)
+      	c.setEstchef(true);
+
+      c=clientRepository.save(c);
+      if(v!=null){
+      	ab.setClient(c);
+	  }else{
+      	v = new Village();
+      	v.setNomvillage(a.getNomVillage());
+      	v.setChef(c);
+      	villageRepository.save(v);
+	  }
+      cp.setNumeroCompteur("001");
+     // cp.setUser();
+		cp = compteurRepository.save(cp);
+		ab.setClient(c);
+		ab.setCompteur(cp);
+		ab.setDescription(a.getDescription());
+		ab.setNumero("001");
+
+		ab = abonnementRepository.save(ab);
+		return ab ;
 
 	}
 
@@ -97,15 +150,19 @@ public class AdminController {
 	}
 
 	@GetMapping("/listUser")
-	public String listeUtilisateur(Model model) {
+	public List<User> listeUtilisateur() {
 
-		List<User> listeU = account.allUser();
-		model.addAttribute("listes", listeU);
-		return "listeUser";
+	return userRepository.findAll();
 
 	}
 
-	@PostMapping("/listUser")
+	@GetMapping("/lrole")
+	public List<Roles> listeRoles() {
+
+      return roleRepository.findAll();
+	}
+
+	@PostMapping("/listUser1")
 	public String alllUtilisateur(Model model) {
 		return null;
 
