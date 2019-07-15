@@ -9,11 +9,12 @@ public class Facture {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
     private  String consnetLettre;
-    private  int consnetChiffre;
+    private  double consnetChiffre;
     @Temporal(TemporalType.DATE)
     private Date dateFacture;
     private  int mois;
     private int montant;
+
     @ManyToOne
     @JoinColumn(name="codeAbonnement")
     private Abonnement abonnement;
@@ -49,11 +50,11 @@ public class Facture {
         this.consnetLettre = consnetLettre;
     }
 
-    public int getConsnetChiffre() {
+    public double getConsnetChiffre() {
         return consnetChiffre;
     }
 
-    public void setConsnetChiffre(int consnetChiffre) {
+    public void setConsnetChiffre(double consnetChiffre) {
         this.consnetChiffre = consnetChiffre;
     }
 

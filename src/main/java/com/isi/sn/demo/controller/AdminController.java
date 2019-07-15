@@ -1,20 +1,19 @@
 package com.isi.sn.demo.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.validation.Valid;
 
 
-import com.isi.sn.demo.entities.Roles;
-import com.isi.sn.demo.entities.User;
+import com.isi.sn.demo.dao.*;
+import com.isi.sn.demo.entities.*;
 import com.isi.sn.demo.service.Account;
 import com.isi.sn.demo.service.RegisterForm;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -25,18 +24,38 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 	@Autowired
 	private Account account;
+	@Autowired
+	UserRepository userRepository ;
+	@Autowired
+	RoleRepository roleRepository ;
 	public boolean statut = false;
-	
-
+	@Autowired
+	private VillageRepository villageRepository ;
+    @Autowired
+	ClientRepository clientRepository ;
+	@Autowired
+	CompteurRepository compteurRepository ;
+	@Autowired
+	AbonnementRepository abonnementRepository ;
+	@Autowired
+	FactureRepository factureRepository ;
 	
 	@PostMapping("/addUser")
-	public User registerForm(@RequestBody User  user) {
-       User u = null ;
+	public User registerForm(@RequestBody UserDto user) {
+       User u = new User() ;
+       u.setDateNaiss(user.getDateNaiss());
+       u.setEnabled(true);
+       u.setPrenom(user.getPrenom());
+       u.setNom(user.getNom());
+       u.setTel(user.getTel());
+       System.out.println("=======mat"+user.getMatricule());
+       u.setMatricule(user.getMatricule());
+       u.setUsername(user.getUsername());
         if(user!=null){
-        u=account.saveUser(user);
+        u=account.saveUser(u);
         String mat = u.getMatricule();
-        u.getRoles().forEach(roles -> {
-        	account.addRoleToUser(mat, roles.getName());
+        user.getRoles().forEach(roles -> {
+        	account.addRoleToUser(mat, roles.getId());
 		});
 		}
 		return u ;
@@ -57,6 +76,79 @@ public class AdminController {
 		account.saveUser(user);
 		model.addAttribute("succes", "succes");
 		return "ajoutUser";
+
+	}
+	@GetMapping("/FindCumulPrecedent/{id}")
+	public Double FindCumulPrecedent(@PathVariable("id") int id) {
+		return  factureRepository.FindCumulPrecedent(id);
+	}
+
+	@GetMapping("/findCompteur/{numeroCompteur}")
+	public Compteur findCompteur(@PathVariable("numeroCompteur") String numeroCompteur) {
+		return  compteurRepository.findCompteurByNumero(numeroCompteur);
+	}
+	@PostMapping("/addFacture")
+	public Facture findCompteur(@RequestBody FactureDto abn) {
+		Compteur c;
+		Abonnement ab;
+		Facture fc = new Facture();
+		c=compteurRepository.findCompteurByNumero(abn.getNumerocompteur());
+		Double cc=c.setCumulCons(abn.getCumulCons());
+		c=compteurRepository.save(c);
+		//je veux recuperer la somme des consommations net de la facture concerne ici et faire sa difference avec cc et le returner a input cosommation net
+		double cp=  factureRepository.FindCumulPrecedent(fc.getId());
+		fc.setConsnetChiffre(cc-cp);
+		fc.setConsnetLettre(abn.getConsnetLettre());
+		fc.setDateFacture(new Date());
+		fc.setMois(abn.getMois());
+		ab=new Abonnement();
+		fc.setMontant(fc.getConsnetChiffre()*abn.getPrixLitres());
+		ab=abonnementRepository.save(ab);
+		fc.setAbonnement(ab);
+		fc=factureRepository.save(fc);
+		return fc;
+	}
+	@GetMapping("/findVillage/{nomVillage}")
+	public Village findVillage(@PathVariable("nomVillage") String nomVillage) {
+
+		return villageRepository.findVillageByNomvillage(nomVillage);
+	}
+
+	@PostMapping("/addAbonnement")
+	public Abonnement findVillage(@RequestBody AbonnementDto a) {
+      Village v ;
+      Client c ;
+      Compteur cp = new Compteur();
+      Abonnement ab = new Abonnement();
+      v =  villageRepository.findVillageByNomvillage(a.getNomVillage());
+      c = new Client() ;
+      c.setAdresse(a.getAdresse());
+      c.setNomFamille(a.getNomFamille());
+      c.setTel(a.getTel());
+      if(a.getEstchef()==1)
+      	c.setEstchef(true);
+
+      c=clientRepository.save(c);
+      if(v!=null){
+      	ab.setClient(c);
+	  }else{
+      	v = new Village();
+      	v.setNomvillage(a.getNomVillage());
+      	v.setChef(c);
+      	villageRepository.save(v);
+	  }
+      cp.setNumeroCompteur(cp.getNumeroCompteur());
+      cp.setCumulCons((double) 0);
+     // cp.setUser();
+		cp = compteurRepository.save(cp);
+		ab.setClient(c);
+		ab.setCompteur(cp);
+		ab.setDescription(a.getDescription());
+		ab.setNumero(ab.getNumero());
+		ab.setDateAbonnement(new Date());
+
+		ab = abonnementRepository.save(ab);
+		return ab ;
 
 	}
 
@@ -90,15 +182,19 @@ public class AdminController {
 	}
 
 	@GetMapping("/listUser")
-	public String listeUtilisateur(Model model) {
+	public List<User> listeUtilisateur() {
 
-		List<User> listeU = account.allUser();
-		model.addAttribute("listes", listeU);
-		return "listeUser";
+	return userRepository.findAll();
 
 	}
 
-	@PostMapping("/listUser")
+	@GetMapping("/lrole")
+	public List<Roles> listeRoles() {
+
+      return roleRepository.findAll();
+	}
+
+	@PostMapping("/listUser1")
 	public String alllUtilisateur(Model model) {
 		return null;
 
@@ -131,7 +227,7 @@ public class AdminController {
 	@PostMapping("/addRole")
 	public String addRole(User u,Model model) {
 		for(Roles role:u.getRoles()) {
-			account.addRoleToUser(matricule, role.getName());
+			account.addRoleToUser(matricule, role.getId());
 		}
 		model.addAttribute("succes", "succes");
 		return "ajoutRole";

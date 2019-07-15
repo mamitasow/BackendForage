@@ -14,7 +14,7 @@ public class villageImpl implements VillageIterface {
     private VillageRepository  vdao;
     @Override
     public Village findBynomvillage(String nomvillage) {
-        return vdao.findBynomvillage(nomvillage);
+        return vdao.findVillageByNomvillage(nomvillage);
     }
 
     @Override

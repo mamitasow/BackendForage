@@ -1,11 +1,10 @@
 package com.isi.sn.demo.entities;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 public class Compteur {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+   @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
     private  String numeroCompteur;
     private  Double cumulCons;
@@ -45,8 +44,9 @@ public class Compteur {
         return cumulCons;
     }
 
-    public void setCumulCons(Double cumulCons) {
+    public Double setCumulCons(Double cumulCons) {
         this.cumulCons = cumulCons;
+        return cumulCons;
     }
 
     public Abonnement getAbonnement() {

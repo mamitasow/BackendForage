@@ -7,7 +7,7 @@ import com.isi.sn.demo.entities.*;
 public interface Account {
 	public User saveUser(User user);
 	public Roles saveRole(Roles role);
-	public void addRoleToUser(String matricule, String libelle);
+	public void addRoleToUser(String matricule, int id);
 	public void rmRoleToUser(String matricule, String libelle);
 	public User findByMatricule(String matricule);
 	public List<User>allUser();
