@@ -39,7 +39,8 @@ public class AdminController {
 	AbonnementRepository abonnementRepository ;
 	@Autowired
 	FactureRepository factureRepository ;
-	
+	@Autowired
+	private ParametrageRepository parametrageRepository ;
 	@PostMapping("/addUser")
 	public User registerForm(@RequestBody UserDto user) {
        User u = new User() ;
@@ -88,22 +89,27 @@ public class AdminController {
 		return  compteurRepository.findCompteurByNumero(numeroCompteur);
 	}
 	@PostMapping("/addFacture")
-	public Facture findCompteur(@RequestBody FactureDto abn) {
+	public Facture addFacture(@RequestBody FactureDto abn) {
 		Compteur c;
 		Abonnement ab;
 		Facture fc = new Facture();
 		c=compteurRepository.findCompteurByNumero(abn.getNumerocompteur());
-		Double cc=c.setCumulCons(abn.getCumulCons());
+		Double cc=c.getCumulCons()+abn.getCumulCons();
+		c.setCumulCons(cc);
 		c=compteurRepository.save(c);
 		//je veux recuperer la somme des consommations net de la facture concerne ici et faire sa difference avec cc et le returner a input cosommation net
-		double cp=  factureRepository.FindCumulPrecedent(fc.getId());
-		fc.setConsnetChiffre(cc-cp);
+		Double cnet = abn.getCumulCons()-c.getCumulCons();
+		//double cp=  factureRepository.FindCumulPrecedent(fc.getId());
+		fc.setConsnetChiffre(cnet);
 		fc.setConsnetLettre(abn.getConsnetLettre());
 		fc.setDateFacture(new Date());
 		fc.setMois(abn.getMois());
-		ab=new Abonnement();
-		fc.setMontant(fc.getConsnetChiffre()*abn.getPrixLitres());
-		ab=abonnementRepository.save(ab);
+		ab=abonnementRepository.findAbonnementByCompteur(abn.getNumerocompteur()).get(0);
+		Parametrage p = parametrageRepository.findAll().get(0);
+		double mnt = cnet*p.getPrixLitres();
+		int m =(int)mnt;
+		fc.setMontant(m);
+	//	ab=abonnementRepository.save(ab);
 		fc.setAbonnement(ab);
 		fc=factureRepository.save(fc);
 		return fc;
@@ -115,7 +121,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/addAbonnement")
-	public Abonnement findVillage(@RequestBody AbonnementDto a) {
+	public Abonnement addAbonnement(@RequestBody AbonnementDto a) {
       Village v ;
       Client c ;
       Compteur cp = new Compteur();
