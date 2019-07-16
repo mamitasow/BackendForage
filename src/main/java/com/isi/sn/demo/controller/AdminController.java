@@ -110,7 +110,7 @@ public class AdminController {
 		Facture fc = new Facture();
 		c=compteurRepository.findCompteurByNumero(abn.getNumerocompteur());
 		//Double cc=c.getCumulCons()+abn.getCumulCons();
-		c.setCumulCons(c.getCumulCons()+abn.getConsnetChiffre());
+		c.setCumulCons(c.getCumulCons()+(abn.getCumulCons()-c.getCumulCons()));
 		c=compteurRepository.save(c);
 		//je veux recuperer la somme des consommations net de la facture concerne ici et faire sa difference avec cc et le returner a input cosommation net
 		//Double cnet = abn.getCumulCons()-c.getCumulCons();
@@ -121,7 +121,7 @@ public class AdminController {
 		fc.setMois(abn.getMois());
 		ab=abonnementRepository.findAbonnementByCompteur(abn.getNumerocompteur()).get(0);
 		Parametrage p = parametrageRepository.findAll().get(0);
-		double mnt = abn.getConsnetChiffre()*p.getPrixLitres();
+		double mnt = (abn.getCumulCons()-c.getCumulCons())*p.getPrixLitres();
 		int m =(int)mnt;
 		fc.setMontant(m);
 	//	ab=abonnementRepository.save(ab);
@@ -149,14 +149,17 @@ public class AdminController {
       if(a.getEstchef()==1)
       	c.setEstchef(true);
 
-      c=clientRepository.save(c);
       if(v!=null){
-      	ab.setClient(c);
+      	c.setVillage(v);
+      	c=clientRepository.save(c);
 	  }else{
       	v = new Village();
       	v.setNomvillage(a.getNomVillage());
-      	v.setChef(c);
-      	villageRepository.save(v);
+        v=villageRepository.save(v);
+        c.setVillage(v);
+        c=clientRepository.save(c);
+        v.setChef(c);
+        v=villageRepository.save(v);
 	  }
       cp.setNumeroCompteur(cp.getNumeroCompteur());
       cp.setCumulCons((double) 0);
@@ -167,7 +170,6 @@ public class AdminController {
 		ab.setDescription(a.getDescription());
 		ab.setNumero(ab.getNumero());
 		ab.setDateAbonnement(new Date());
-
 		ab = abonnementRepository.save(ab);
 		return ab ;
 
