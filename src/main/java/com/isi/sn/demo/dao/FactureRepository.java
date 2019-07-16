@@ -9,4 +9,6 @@ import org.springframework.data.repository.query.Param;
 public interface FactureRepository extends JpaRepository<Facture, Long> {
     @Query("select SUM(consnetChiffre)from Facture c where c.id =:id")
     Double FindCumulPrecedent(@Param("id") int id);
+    @Query("select f from Facture f where f.numeroFacture =:numF")
+    Facture findFactureBynumeroFacture(@Param("numF") String numF);
 }

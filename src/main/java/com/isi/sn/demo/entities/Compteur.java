@@ -1,5 +1,7 @@
 package com.isi.sn.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -48,7 +50,7 @@ public class Compteur {
         this.cumulCons = cumulCons;
         return cumulCons;
     }
-
+    @JsonIgnore
     public Abonnement getAbonnement() {
         return abonnement;
     }
@@ -56,7 +58,7 @@ public class Compteur {
     public void setAbonnement(Abonnement abonnement) {
         this.abonnement = abonnement;
     }
-
+    @JsonIgnore
     public User getUser() {
         return user;
     }

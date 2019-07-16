@@ -19,7 +19,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value="/admin")
+@RequestMapping("/admin")
 @CrossOrigin("*")
 public class AdminController {
 	@Autowired
@@ -41,6 +41,8 @@ public class AdminController {
 	FactureRepository factureRepository ;
 	@Autowired
 	private ParametrageRepository parametrageRepository ;
+	@Autowired
+	private ReglementRepository reglementRepository ;
 	@PostMapping("/addUser")
 	public User registerForm(@RequestBody UserDto user) {
        User u = new User() ;
@@ -63,6 +65,15 @@ public class AdminController {
 
 	}
 
+	@PostMapping("/editUser")
+	public User editUser(@RequestBody User user) {
+		return  userRepository.save(user);
+	}
+	@PostMapping("/delete")
+	public void deleteUser(@RequestBody User user) {
+		  userRepository.delete(user);
+	}
+
 	@PostMapping("/addUser1")
 	public String checkForm(@Valid User user, BindingResult bindingresult, Model model) {
 		if (bindingresult.hasErrors()) {
@@ -83,6 +94,10 @@ public class AdminController {
 	public Double FindCumulPrecedent(@PathVariable("id") int id) {
 		return  factureRepository.FindCumulPrecedent(id);
 	}
+	@GetMapping("/findFacture/{num}")
+	public Facture findFacture(@PathVariable("num") String num) {
+		return  factureRepository.findFactureBynumeroFacture(num);
+	}
 
 	@GetMapping("/findCompteur/{numeroCompteur}")
 	public Compteur findCompteur(@PathVariable("numeroCompteur") String numeroCompteur) {
@@ -94,19 +109,19 @@ public class AdminController {
 		Abonnement ab;
 		Facture fc = new Facture();
 		c=compteurRepository.findCompteurByNumero(abn.getNumerocompteur());
-		Double cc=c.getCumulCons()+abn.getCumulCons();
-		c.setCumulCons(cc);
+		//Double cc=c.getCumulCons()+abn.getCumulCons();
+		c.setCumulCons(c.getCumulCons()+abn.getConsnetChiffre());
 		c=compteurRepository.save(c);
 		//je veux recuperer la somme des consommations net de la facture concerne ici et faire sa difference avec cc et le returner a input cosommation net
-		Double cnet = abn.getCumulCons()-c.getCumulCons();
+		//Double cnet = abn.getCumulCons()-c.getCumulCons();
 		//double cp=  factureRepository.FindCumulPrecedent(fc.getId());
-		fc.setConsnetChiffre(cnet);
+		fc.setConsnetChiffre(abn.getConsnetChiffre());
 		fc.setConsnetLettre(abn.getConsnetLettre());
 		fc.setDateFacture(new Date());
 		fc.setMois(abn.getMois());
 		ab=abonnementRepository.findAbonnementByCompteur(abn.getNumerocompteur()).get(0);
 		Parametrage p = parametrageRepository.findAll().get(0);
-		double mnt = cnet*p.getPrixLitres();
+		double mnt = abn.getConsnetChiffre()*p.getPrixLitres();
 		int m =(int)mnt;
 		fc.setMontant(m);
 	//	ab=abonnementRepository.save(ab);
@@ -158,6 +173,27 @@ public class AdminController {
 
 	}
 
+	@PostMapping("/addReglement")
+	public Reglement addAbonnement(@RequestBody ReglementDto rdto) {
+		Facture f = factureRepository.findFactureBynumeroFacture(rdto.getNumeroFacture());
+		Reglement  r = new Reglement();
+		if(f!=null){
+			r.setConsnetLettre(f.getConsnetLettre());
+			r.setDateFacture(f.getDateFacture());
+			f.setAbonnement(f.getAbonnement());
+		}
+
+		r.setMontant(rdto.getMontant());
+		r.setDateReglement(new Date());
+		if(r.getDateReglement().getDay()>5){
+			float mnt = r.getMontant()*rdto.getTaxe();
+			int m = (int)mnt;
+			r.setMontant(rdto.getMontant()+m);
+		}else
+		r.setMontant(rdto.getMontant());
+
+		return reglementRepository.save(r);
+	}
 	@GetMapping("/updateMp")
 	public String ChangePasswd(Model model) {
 

@@ -1,5 +1,7 @@
 package com.isi.sn.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -14,7 +16,7 @@ public class Facture {
     private Date dateFacture;
     private  int mois;
     private int montant;
-
+    private String numeroFacture ;
     @ManyToOne
     @JoinColumn(name="codeAbonnement")
     private Abonnement abonnement;
@@ -81,7 +83,7 @@ public class Facture {
     public void setMontant(int montant) {
         this.montant = montant;
     }
-
+    @JsonIgnore
     public Abonnement getAbonnement() {
         return abonnement;
     }
@@ -89,12 +91,20 @@ public class Facture {
     public void setAbonnement(Abonnement abonnement) {
         this.abonnement = abonnement;
     }
-
+    @JsonIgnore
     public User getUser() {
         return user;
     }
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getNumeroFacture() {
+        return numeroFacture;
+    }
+
+    public void setNumeroFacture(String numeroFacture) {
+        this.numeroFacture = numeroFacture;
     }
 }

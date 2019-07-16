@@ -23,7 +23,7 @@ public class FactureImpl implements  FactureInterface {
 
     @Override
     public Compteur findCompteurByNumeroCompteur(String numeroCompteur) {
-        return cdao.findCompteurByNumeroCompteur(numeroCompteur);
+        return cdao.findCompteurByNumero(numeroCompteur);
     }
 
     @Override

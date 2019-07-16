@@ -17,7 +17,9 @@ public class Reglement {
     @ManyToOne
     @JoinColumn(name="user")
     private User user;
-
+    private int montant ;
+    @Temporal(TemporalType.DATE)
+    private Date dateReglement;
 
     public Reglement() {
     }
@@ -68,5 +70,21 @@ public class Reglement {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public int getMontant() {
+        return montant;
+    }
+
+    public void setMontant(int montant) {
+        this.montant = montant;
+    }
+
+    public Date getDateReglement() {
+        return dateReglement;
+    }
+
+    public void setDateReglement(Date dateReglement) {
+        this.dateReglement = dateReglement;
     }
 }
